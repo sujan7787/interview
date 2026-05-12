@@ -4,8 +4,8 @@
 **Prepared for:** Academic Project Submission
 **Prepared by:** Pravin Gupta
 **Course:** Object-Oriented Software Engineering
-**Project Type:** Case Study Project
-**Date:** May 2026
+**Project Title:** Online Banking System
+**Project Type:** OOSE Case Study Project
 
 Prepared as a student case study using class notes, standard OOSE concepts, and practical observation of common online banking features.
 
@@ -30,9 +30,18 @@ I am also thankful to my classmates and available study references that helped m
 
 ## Personal Observation Notes
 
-- **Observation:** Many online banking tasks look simple to users, but internally they need checks such as login, OTP, balance validation, audit logging, and notification.
-- **Design Note:** The most important design decision is to keep transaction logic separate from user interface code so the same backend can support web and mobile banking.
-- **Learning Point:** UML diagrams make the system easier to explain because they show actors, classes, object interaction, workflow, architecture, and database structure in different views.
+### Observation
+
+Many online banking tasks look simple to users, but internally they need checks such as login, OTP, balance validation, audit logging, and notification.
+
+### Design Note
+
+The most important design decision is to keep transaction logic separate from user interface code so the same backend can support web and mobile banking.
+
+### Learning Point
+
+UML diagrams make the system easier to explain because they show actors, classes, object interaction, workflow, architecture, and database structure in different views.
+
 
 ## Table of Contents
 - 1. Introduction
@@ -409,15 +418,15 @@ Future work may include mobile application development, biometric login, AI-base
 
 ## 13. References
 
-Booch, G., Rumbaugh, J., & Jacobson, I. The Unified Modeling Language User Guide. Addison-Wesley.
+[1] G. Booch, J. Rumbaugh, and I. Jacobson, The Unified Modeling Language User Guide, 2nd ed. Boston, MA, USA: Addison-Wesley, 2005.
 
-Sommerville, I. Software Engineering. Pearson Education.
+[2] I. Sommerville, Software Engineering, 10th ed. Boston, MA, USA: Pearson, 2016.
 
-Pressman, R. S., & Maxim, B. R. Software Engineering: A Practitioner's Approach. McGraw-Hill.
+[3] R. S. Pressman and B. R. Maxim, Software Engineering: A Practitioner's Approach, 9th ed. New York, NY, USA: McGraw-Hill Education, 2020.
 
-Gamma, E., Helm, R., Johnson, R., & Vlissides, J. Design Patterns: Elements of Reusable Object-Oriented Software. Addison-Wesley.
+[4] E. Gamma, R. Helm, R. Johnson, and J. Vlissides, Design Patterns: Elements of Reusable Object-Oriented Software. Reading, MA, USA: Addison-Wesley, 1994.
 
-OWASP Foundation. OWASP Top Ten Web Application Security Risks.
+[5] OWASP Foundation, OWASP Top 10: The Ten Most Critical Web Application Security Risks, 2021. [Online]. Available: https://owasp.org/www-project-top-ten/
 
 ## 14. Appendices
 ### Appendix A: UML Diagrams

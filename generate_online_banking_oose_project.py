@@ -24,8 +24,8 @@ PDF_PATH = ROOT / "Online_Banking_System_OOSE_Project.pdf"
 MD_PATH = ROOT / "Online_Banking_System_OOSE_Project.md"
 STUDENT_NAME = "Pravin Gupta"
 COURSE_NAME = "Object-Oriented Software Engineering"
-PROJECT_TYPE = "Case Study Project"
-INSTITUTE_NAME = "Submitted for academic evaluation"
+PROJECT_TITLE = "Online Banking System"
+PROJECT_TYPE = "OOSE Case Study Project"
 PREPARATION_NOTE = "Prepared as a student case study using class notes, standard OOSE concepts, and practical observation of common online banking features."
 
 
@@ -48,17 +48,17 @@ FRONT_MATTER = [
 
 
 PROJECT_ASSUMPTIONS = [
-    ["1", "The bank already has a core banking database, and this online banking system connects to it through secure service interfaces."],
-    ["2", "Customers must complete bank verification before receiving online banking access."],
-    ["3", "Every financial transaction requires authentication, validation, database logging, and user notification."],
-    ["4", "The project focuses on software design and documentation, not live banking deployment."],
+    "The bank already has a core banking database, and this online banking system connects to it through secure service interfaces.",
+    "Customers must complete bank verification before receiving online banking access.",
+    "Every financial transaction requires authentication, validation, database logging, and user notification.",
+    "The project focuses on software design and documentation, not live banking deployment.",
 ]
 
 
 PERSONAL_OBSERVATIONS = [
-    ["Observation", "Many online banking tasks look simple to users, but internally they need checks such as login, OTP, balance validation, audit logging, and notification."],
-    ["Design Note", "The most important design decision is to keep transaction logic separate from user interface code so the same backend can support web and mobile banking."],
-    ["Learning Point", "UML diagrams make the system easier to explain because they show actors, classes, object interaction, workflow, architecture, and database structure in different views."],
+    ("Observation", "Many online banking tasks look simple to users, but internally they need checks such as login, OTP, balance validation, audit logging, and notification."),
+    ("Design Note", "The most important design decision is to keep transaction logic separate from user interface code so the same backend can support web and mobile banking."),
+    ("Learning Point", "UML diagrams make the system easier to explain because they show actors, classes, object interaction, workflow, architecture, and database structure in different views."),
 ]
 
 
@@ -362,11 +362,11 @@ PROJECT = [
             (
                 "",
                 [
-                    "Booch, G., Rumbaugh, J., & Jacobson, I. The Unified Modeling Language User Guide. Addison-Wesley.",
-                    "Sommerville, I. Software Engineering. Pearson Education.",
-                    "Pressman, R. S., & Maxim, B. R. Software Engineering: A Practitioner's Approach. McGraw-Hill.",
-                    "Gamma, E., Helm, R., Johnson, R., & Vlissides, J. Design Patterns: Elements of Reusable Object-Oriented Software. Addison-Wesley.",
-                    "OWASP Foundation. OWASP Top Ten Web Application Security Risks.",
+                    "[1] G. Booch, J. Rumbaugh, and I. Jacobson, The Unified Modeling Language User Guide, 2nd ed. Boston, MA, USA: Addison-Wesley, 2005.",
+                    "[2] I. Sommerville, Software Engineering, 10th ed. Boston, MA, USA: Pearson, 2016.",
+                    "[3] R. S. Pressman and B. R. Maxim, Software Engineering: A Practitioner's Approach, 9th ed. New York, NY, USA: McGraw-Hill Education, 2020.",
+                    "[4] E. Gamma, R. Helm, R. Johnson, and J. Vlissides, Design Patterns: Elements of Reusable Object-Oriented Software. Reading, MA, USA: Addison-Wesley, 1994.",
+                    "[5] OWASP Foundation, OWASP Top 10: The Ten Most Critical Web Application Security Risks, 2021. [Online]. Available: https://owasp.org/www-project-top-ten/",
                 ],
             )
         ],
@@ -507,8 +507,8 @@ def build_markdown():
         "**Prepared for:** Academic Project Submission",
         f"**Prepared by:** {STUDENT_NAME}",
         f"**Course:** {COURSE_NAME}",
+        f"**Project Title:** {PROJECT_TITLE}",
         f"**Project Type:** {PROJECT_TYPE}",
-        "**Date:** May 2026",
         "",
         PREPARATION_NOTE,
         "",
@@ -525,8 +525,8 @@ def build_markdown():
             "",
         ]
     )
-    for number, assumption in PROJECT_ASSUMPTIONS:
-        lines.append(f"{number}. {assumption}")
+    for index, assumption in enumerate(PROJECT_ASSUMPTIONS, start=1):
+        lines.append(f"{index}. {assumption}")
     lines.extend(
         [
             "",
@@ -535,7 +535,10 @@ def build_markdown():
         ]
     )
     for label, note in PERSONAL_OBSERVATIONS:
-        lines.append(f"- **{label}:** {note}")
+        lines.append(f"### {label}")
+        lines.append("")
+        lines.append(note)
+        lines.append("")
     lines.extend(
         [
             "",
@@ -610,7 +613,6 @@ def footer(canvas, doc):
     canvas.saveState()
     canvas.setFont("Helvetica", 8)
     canvas.setFillColor(colors.HexColor("#4b5563"))
-    canvas.drawString(0.75 * inch, 0.45 * inch, "OOSE Case Study: Online Banking System")
     canvas.drawRightString(A4[0] - 0.75 * inch, 0.45 * inch, f"Page {doc.page}")
     canvas.restoreState()
 
@@ -1017,9 +1019,8 @@ def build_pdf():
     cover_rows = [
         ["Prepared by", STUDENT_NAME],
         ["Course", COURSE_NAME],
+        ["Project Title", PROJECT_TITLE],
         ["Project Type", PROJECT_TYPE],
-        ["Submitted as", INSTITUTE_NAME],
-        ["Date", "May 2026"],
     ]
     cover_table = Table(cover_rows, colWidths=[1.45 * inch, 3.1 * inch])
     cover_table.setStyle(
@@ -1041,8 +1042,6 @@ def build_pdf():
     story.append(para("This project applies Object-Oriented Software Engineering principles to the analysis, design, implementation planning, testing, and management of an online banking system.", styles["Subtitle"]))
     story.append(Spacer(1, 0.15 * inch))
     story.append(para(PREPARATION_NOTE, styles["BodyText"]))
-    story.append(Spacer(1, 0.5 * inch))
-    story.append(para("Signature: ____________________________", styles["Subtitle"]))
     story.append(PageBreak())
 
     for title, paragraphs in FRONT_MATTER:
@@ -1051,41 +1050,13 @@ def build_pdf():
             story.append(para(paragraph, styles["BodyText"]))
 
     story.append(para("Project Assumptions", styles["Heading1"]))
-    assumption_table = Table([["No.", "Assumption"]] + PROJECT_ASSUMPTIONS, colWidths=[0.55 * inch, 5.15 * inch])
-    assumption_table.setStyle(
-        TableStyle(
-            [
-                ("BACKGROUND", (0, 0), (-1, 0), colors.HexColor("#12355b")),
-                ("TEXTCOLOR", (0, 0), (-1, 0), colors.white),
-                ("FONTNAME", (0, 0), (-1, 0), "Helvetica-Bold"),
-                ("FONTSIZE", (0, 0), (-1, -1), 9),
-                ("GRID", (0, 0), (-1, -1), 0.4, colors.HexColor("#cbd5e1")),
-                ("VALIGN", (0, 0), (-1, -1), "TOP"),
-                ("LEFTPADDING", (0, 0), (-1, -1), 6),
-                ("RIGHTPADDING", (0, 0), (-1, -1), 6),
-            ]
-        )
-    )
-    story.append(assumption_table)
-    story.append(Spacer(1, 0.15 * inch))
+    for index, assumption in enumerate(PROJECT_ASSUMPTIONS, start=1):
+        story.append(para(f"<b>{index}.</b> {assumption}", styles["BodyText"]))
 
     story.append(para("Personal Observation Notes", styles["Heading1"]))
-    observation_table = Table([["Component", "Student Note"]] + PERSONAL_OBSERVATIONS, colWidths=[1.05 * inch, 4.65 * inch])
-    observation_table.setStyle(
-        TableStyle(
-            [
-                ("BACKGROUND", (0, 0), (-1, 0), colors.HexColor("#12355b")),
-                ("TEXTCOLOR", (0, 0), (-1, 0), colors.white),
-                ("FONTNAME", (0, 0), (-1, 0), "Helvetica-Bold"),
-                ("FONTSIZE", (0, 0), (-1, -1), 9),
-                ("GRID", (0, 0), (-1, -1), 0.4, colors.HexColor("#cbd5e1")),
-                ("VALIGN", (0, 0), (-1, -1), "TOP"),
-                ("LEFTPADDING", (0, 0), (-1, -1), 6),
-                ("RIGHTPADDING", (0, 0), (-1, -1), 6),
-            ]
-        )
-    )
-    story.append(observation_table)
+    for label, note in PERSONAL_OBSERVATIONS:
+        story.append(para(label, styles["Heading2"]))
+        story.append(para(note, styles["BodyText"]))
     story.append(PageBreak())
 
     story.append(para("Table of Contents", styles["Heading1"]))
