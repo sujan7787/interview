@@ -23,6 +23,43 @@ ROOT = Path(__file__).resolve().parent
 PDF_PATH = ROOT / "Online_Banking_System_OOSE_Project.pdf"
 MD_PATH = ROOT / "Online_Banking_System_OOSE_Project.md"
 STUDENT_NAME = "Pravin Gupta"
+COURSE_NAME = "Object-Oriented Software Engineering"
+PROJECT_TYPE = "Case Study Project"
+INSTITUTE_NAME = "Submitted for academic evaluation"
+PREPARATION_NOTE = "Prepared as a student case study using class notes, standard OOSE concepts, and practical observation of common online banking features."
+
+
+FRONT_MATTER = [
+    (
+        "Student Declaration",
+        [
+            "I, Pravin Gupta, declare that this project report on Online Banking System has been prepared for academic purpose as part of the Object-Oriented Software Engineering study work.",
+            "The diagrams, analysis, design explanation, sample code, and testing plan are organized in my own words for understanding the application of object-oriented concepts in a practical banking system.",
+        ],
+    ),
+    (
+        "Acknowledgement",
+        [
+            "I would like to express my sincere thanks to my subject teacher for guiding the concepts of object-oriented analysis, design, UML modeling, and software engineering documentation.",
+            "I am also thankful to my classmates and available study references that helped me understand how real online banking systems can be analyzed using OOSE principles.",
+        ],
+    ),
+]
+
+
+PROJECT_ASSUMPTIONS = [
+    ["1", "The bank already has a core banking database, and this online banking system connects to it through secure service interfaces."],
+    ["2", "Customers must complete bank verification before receiving online banking access."],
+    ["3", "Every financial transaction requires authentication, validation, database logging, and user notification."],
+    ["4", "The project focuses on software design and documentation, not live banking deployment."],
+]
+
+
+PERSONAL_OBSERVATIONS = [
+    ["Observation", "Many online banking tasks look simple to users, but internally they need checks such as login, OTP, balance validation, audit logging, and notification."],
+    ["Design Note", "The most important design decision is to keep transaction logic separate from user interface code so the same backend can support web and mobile banking."],
+    ["Learning Point", "UML diagrams make the system easier to explain because they show actors, classes, object interaction, workflow, architecture, and database structure in different views."],
+]
 
 
 PROJECT = [
@@ -469,10 +506,42 @@ def build_markdown():
         "",
         "**Prepared for:** Academic Project Submission",
         f"**Prepared by:** {STUDENT_NAME}",
+        f"**Course:** {COURSE_NAME}",
+        f"**Project Type:** {PROJECT_TYPE}",
         "**Date:** May 2026",
         "",
-        "## Table of Contents",
+        PREPARATION_NOTE,
+        "",
     ]
+    for title, paragraphs in FRONT_MATTER:
+        lines.append(f"## {title}")
+        lines.append("")
+        for paragraph in paragraphs:
+            lines.append(paragraph)
+            lines.append("")
+    lines.extend(
+        [
+            "## Project Assumptions",
+            "",
+        ]
+    )
+    for number, assumption in PROJECT_ASSUMPTIONS:
+        lines.append(f"{number}. {assumption}")
+    lines.extend(
+        [
+            "",
+            "## Personal Observation Notes",
+            "",
+        ]
+    )
+    for label, note in PERSONAL_OBSERVATIONS:
+        lines.append(f"- **{label}:** {note}")
+    lines.extend(
+        [
+            "",
+            "## Table of Contents",
+        ]
+    )
     for section in PROJECT:
         lines.append(f"- {section['title']}")
         for subsection, _ in section["subsections"]:
@@ -941,15 +1010,82 @@ def build_pdf():
     doc.addPageTemplates([PageTemplate(id="project", frames=frame, onPage=footer)])
 
     story = []
-    story.append(Spacer(1, 1.4 * inch))
+    story.append(Spacer(1, 0.85 * inch))
     story.append(para("Object-Oriented Software Engineering Case Study", styles["TitleCenter"]))
     story.append(para("Online Banking System", styles["Subtitle"]))
-    story.append(Spacer(1, 0.25 * inch))
-    story.append(para("<b>Prepared for:</b> Academic Project Submission", styles["Subtitle"]))
-    story.append(para(f"<b>Prepared by:</b> {STUDENT_NAME}", styles["Subtitle"]))
-    story.append(para("<b>Date:</b> May 2026", styles["Subtitle"]))
-    story.append(Spacer(1, 0.6 * inch))
+    story.append(Spacer(1, 0.18 * inch))
+    cover_rows = [
+        ["Prepared by", STUDENT_NAME],
+        ["Course", COURSE_NAME],
+        ["Project Type", PROJECT_TYPE],
+        ["Submitted as", INSTITUTE_NAME],
+        ["Date", "May 2026"],
+    ]
+    cover_table = Table(cover_rows, colWidths=[1.45 * inch, 3.1 * inch])
+    cover_table.setStyle(
+        TableStyle(
+            [
+                ("GRID", (0, 0), (-1, -1), 0.5, colors.HexColor("#cbd5e1")),
+                ("BACKGROUND", (0, 0), (0, -1), colors.HexColor("#f1f5f9")),
+                ("FONTNAME", (0, 0), (0, -1), "Helvetica-Bold"),
+                ("FONTSIZE", (0, 0), (-1, -1), 10.5),
+                ("LEFTPADDING", (0, 0), (-1, -1), 8),
+                ("RIGHTPADDING", (0, 0), (-1, -1), 8),
+                ("TOPPADDING", (0, 0), (-1, -1), 6),
+                ("BOTTOMPADDING", (0, 0), (-1, -1), 6),
+            ]
+        )
+    )
+    story.append(cover_table)
+    story.append(Spacer(1, 0.35 * inch))
     story.append(para("This project applies Object-Oriented Software Engineering principles to the analysis, design, implementation planning, testing, and management of an online banking system.", styles["Subtitle"]))
+    story.append(Spacer(1, 0.15 * inch))
+    story.append(para(PREPARATION_NOTE, styles["BodyText"]))
+    story.append(Spacer(1, 0.5 * inch))
+    story.append(para("Signature: ____________________________", styles["Subtitle"]))
+    story.append(PageBreak())
+
+    for title, paragraphs in FRONT_MATTER:
+        story.append(para(title, styles["Heading1"]))
+        for paragraph in paragraphs:
+            story.append(para(paragraph, styles["BodyText"]))
+
+    story.append(para("Project Assumptions", styles["Heading1"]))
+    assumption_table = Table([["No.", "Assumption"]] + PROJECT_ASSUMPTIONS, colWidths=[0.55 * inch, 5.15 * inch])
+    assumption_table.setStyle(
+        TableStyle(
+            [
+                ("BACKGROUND", (0, 0), (-1, 0), colors.HexColor("#12355b")),
+                ("TEXTCOLOR", (0, 0), (-1, 0), colors.white),
+                ("FONTNAME", (0, 0), (-1, 0), "Helvetica-Bold"),
+                ("FONTSIZE", (0, 0), (-1, -1), 9),
+                ("GRID", (0, 0), (-1, -1), 0.4, colors.HexColor("#cbd5e1")),
+                ("VALIGN", (0, 0), (-1, -1), "TOP"),
+                ("LEFTPADDING", (0, 0), (-1, -1), 6),
+                ("RIGHTPADDING", (0, 0), (-1, -1), 6),
+            ]
+        )
+    )
+    story.append(assumption_table)
+    story.append(Spacer(1, 0.15 * inch))
+
+    story.append(para("Personal Observation Notes", styles["Heading1"]))
+    observation_table = Table([["Component", "Student Note"]] + PERSONAL_OBSERVATIONS, colWidths=[1.05 * inch, 4.65 * inch])
+    observation_table.setStyle(
+        TableStyle(
+            [
+                ("BACKGROUND", (0, 0), (-1, 0), colors.HexColor("#12355b")),
+                ("TEXTCOLOR", (0, 0), (-1, 0), colors.white),
+                ("FONTNAME", (0, 0), (-1, 0), "Helvetica-Bold"),
+                ("FONTSIZE", (0, 0), (-1, -1), 9),
+                ("GRID", (0, 0), (-1, -1), 0.4, colors.HexColor("#cbd5e1")),
+                ("VALIGN", (0, 0), (-1, -1), "TOP"),
+                ("LEFTPADDING", (0, 0), (-1, -1), 6),
+                ("RIGHTPADDING", (0, 0), (-1, -1), 6),
+            ]
+        )
+    )
+    story.append(observation_table)
     story.append(PageBreak())
 
     story.append(para("Table of Contents", styles["Heading1"]))

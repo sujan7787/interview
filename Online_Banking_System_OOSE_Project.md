@@ -3,7 +3,36 @@
 
 **Prepared for:** Academic Project Submission
 **Prepared by:** Pravin Gupta
+**Course:** Object-Oriented Software Engineering
+**Project Type:** Case Study Project
 **Date:** May 2026
+
+Prepared as a student case study using class notes, standard OOSE concepts, and practical observation of common online banking features.
+
+## Student Declaration
+
+I, Pravin Gupta, declare that this project report on Online Banking System has been prepared for academic purpose as part of the Object-Oriented Software Engineering study work.
+
+The diagrams, analysis, design explanation, sample code, and testing plan are organized in my own words for understanding the application of object-oriented concepts in a practical banking system.
+
+## Acknowledgement
+
+I would like to express my sincere thanks to my subject teacher for guiding the concepts of object-oriented analysis, design, UML modeling, and software engineering documentation.
+
+I am also thankful to my classmates and available study references that helped me understand how real online banking systems can be analyzed using OOSE principles.
+
+## Project Assumptions
+
+1. The bank already has a core banking database, and this online banking system connects to it through secure service interfaces.
+2. Customers must complete bank verification before receiving online banking access.
+3. Every financial transaction requires authentication, validation, database logging, and user notification.
+4. The project focuses on software design and documentation, not live banking deployment.
+
+## Personal Observation Notes
+
+- **Observation:** Many online banking tasks look simple to users, but internally they need checks such as login, OTP, balance validation, audit logging, and notification.
+- **Design Note:** The most important design decision is to keep transaction logic separate from user interface code so the same backend can support web and mobile banking.
+- **Learning Point:** UML diagrams make the system easier to explain because they show actors, classes, object interaction, workflow, architecture, and database structure in different views.
 
 ## Table of Contents
 - 1. Introduction
