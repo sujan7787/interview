@@ -16,11 +16,13 @@ from reportlab.platypus import (
     TableStyle,
 )
 from reportlab.platypus.tableofcontents import TableOfContents
+from reportlab.graphics.shapes import Circle, Drawing, Ellipse, Line, Polygon, Rect, String
 
 
 ROOT = Path(__file__).resolve().parent
 PDF_PATH = ROOT / "Online_Banking_System_OOSE_Project.pdf"
 MD_PATH = ROOT / "Online_Banking_System_OOSE_Project.md"
+STUDENT_NAME = "Pravin Gupta"
 
 
 PROJECT = [
@@ -466,7 +468,7 @@ def build_markdown():
         "## Online Banking System",
         "",
         "**Prepared for:** Academic Project Submission",
-        "**Prepared by:** Student",
+        f"**Prepared by:** {STUDENT_NAME}",
         "**Date:** May 2026",
         "",
         "## Table of Contents",
@@ -478,6 +480,20 @@ def build_markdown():
                 lines.append(f"  - {subsection}")
     lines.append("- 14. Appendices")
     lines.extend(["  - A: UML Diagrams", "  - B: Sample Code", "  - C: Test Cases", ""])
+    lines.extend(
+        [
+            "## Figures and Diagrams Included",
+            "",
+            "1. Use Case Diagram",
+            "2. Domain Model Diagram",
+            "3. UML Class Diagram",
+            "4. UML Sequence Diagram",
+            "5. UML Activity Diagram",
+            "6. System Architecture Diagram",
+            "7. Database ER Diagram",
+            "",
+        ]
+    )
     for section in PROJECT:
         lines.append(f"## {section['title']}")
         lines.append("")
@@ -487,6 +503,9 @@ def build_markdown():
                 lines.append("")
             for para in paragraphs:
                 lines.append(para)
+                lines.append("")
+            if subsection in MARKDOWN_DIAGRAMS:
+                lines.append(MARKDOWN_DIAGRAMS[subsection])
                 lines.append("")
     lines.append("## 14. Appendices")
     for appendix_title, items in APPENDICES:
@@ -531,6 +550,317 @@ def para(text, style):
     return Paragraph(text, style)
 
 
+def caption(text, styles):
+    return Paragraph(f"<b>{text}</b>", styles["Caption"])
+
+
+def draw_box(d, x, y, w, h, label, fill="#f8fafc", stroke="#12355b", size=8.5):
+    d.add(Rect(x, y, w, h, strokeColor=colors.HexColor(stroke), fillColor=colors.HexColor(fill), rx=3, ry=3))
+    lines = label.split("\n")
+    start_y = y + h - 13
+    for i, item in enumerate(lines):
+        d.add(String(x + 5, start_y - (i * 10), item, fontName="Helvetica", fontSize=size, fillColor=colors.HexColor("#111827")))
+
+
+def draw_arrow(d, x1, y1, x2, y2, stroke="#374151"):
+    d.add(Line(x1, y1, x2, y2, strokeColor=colors.HexColor(stroke), strokeWidth=1))
+    dx = x2 - x1
+    dy = y2 - y1
+    if abs(dx) >= abs(dy):
+        if dx >= 0:
+            pts = [x2, y2, x2 - 7, y2 + 4, x2 - 7, y2 - 4]
+        else:
+            pts = [x2, y2, x2 + 7, y2 + 4, x2 + 7, y2 - 4]
+    else:
+        if dy >= 0:
+            pts = [x2, y2, x2 - 4, y2 - 7, x2 + 4, y2 - 7]
+        else:
+            pts = [x2, y2, x2 - 4, y2 + 7, x2 + 4, y2 + 7]
+    d.add(Polygon(pts, strokeColor=colors.HexColor(stroke), fillColor=colors.HexColor(stroke)))
+
+
+def use_case_diagram():
+    d = Drawing(480, 285)
+    d.add(String(165, 265, "Use Case Diagram: Online Banking System", fontName="Helvetica-Bold", fontSize=11))
+    d.add(Rect(105, 20, 275, 230, strokeColor=colors.HexColor("#64748b"), fillColor=None))
+    d.add(String(200, 236, "System Boundary", fontName="Helvetica-Bold", fontSize=9))
+    actors = [("Customer", 30, 170), ("Admin", 430, 170), ("Payment\nGateway", 430, 55), ("Notification\nService", 30, 55)]
+    for name, x, y in actors:
+        d.add(Circle(x, y + 32, 8, strokeColor=colors.black, fillColor=None))
+        d.add(Line(x, y + 24, x, y + 3))
+        d.add(Line(x - 12, y + 16, x + 12, y + 16))
+        d.add(Line(x, y + 3, x - 10, y - 12))
+        d.add(Line(x, y + 3, x + 10, y - 12))
+        for i, part in enumerate(name.split("\n")):
+            d.add(String(x - 22, y - 28 - i * 10, part, fontName="Helvetica", fontSize=8))
+    cases = [
+        ("Login / 2FA", 145, 195), ("View Accounts", 145, 150), ("Transfer Funds", 145, 105),
+        ("Pay Bills", 145, 60), ("Manage Users", 280, 195), ("Monitor Txns", 280, 150),
+        ("Generate Reports", 280, 105), ("Send Alerts", 280, 60),
+    ]
+    centers = {}
+    for label, x, y in cases:
+        d.add(Ellipse(x, y, 90, 27, strokeColor=colors.HexColor("#12355b"), fillColor=colors.HexColor("#eff6ff")))
+        d.add(String(x + 12, y + 10, label, fontName="Helvetica", fontSize=8))
+        centers[label] = (x + 45, y + 14)
+    for target in ["Login / 2FA", "View Accounts", "Transfer Funds", "Pay Bills"]:
+        draw_arrow(d, 50, 190, centers[target][0] - 45, centers[target][1])
+    for target in ["Manage Users", "Monitor Txns", "Generate Reports"]:
+        draw_arrow(d, 410, 190, centers[target][0] + 45, centers[target][1])
+    draw_arrow(d, 410, 75, centers["Pay Bills"][0] + 45, centers["Pay Bills"][1])
+    draw_arrow(d, 50, 75, centers["Send Alerts"][0] - 45, centers["Send Alerts"][1])
+    return d
+
+
+def domain_model_diagram():
+    d = Drawing(480, 260)
+    d.add(String(170, 240, "Domain Model Diagram", fontName="Helvetica-Bold", fontSize=11))
+    boxes = {
+        "Customer": (30, 170), "BankAccount": (185, 170), "Transaction": (340, 170),
+        "Beneficiary": (30, 80), "Statement": (185, 80), "Notification": (340, 80),
+    }
+    labels = {
+        "Customer": "Customer\ncustomerId\nname\nmobile",
+        "BankAccount": "BankAccount\naccountNo\nbalance\nstatus",
+        "Transaction": "Transaction\ntxnId\namount\nstatus",
+        "Beneficiary": "Beneficiary\nname\naccountNo\nbank",
+        "Statement": "Statement\nperiod\nopeningBal\nclosingBal",
+        "Notification": "Notification\nchannel\nmessage\nsentAt",
+    }
+    for key, (x, y) in boxes.items():
+        draw_box(d, x, y, 110, 55, labels[key])
+    draw_arrow(d, 140, 198, 185, 198)
+    d.add(String(146, 207, "owns 1..*", fontSize=7))
+    draw_arrow(d, 295, 198, 340, 198)
+    d.add(String(298, 207, "records 0..*", fontSize=7))
+    draw_arrow(d, 85, 170, 85, 135)
+    d.add(String(93, 136, "has", fontSize=7))
+    draw_arrow(d, 240, 170, 240, 135)
+    d.add(String(248, 136, "produces", fontSize=7))
+    draw_arrow(d, 395, 170, 395, 135)
+    d.add(String(403, 136, "triggers", fontSize=7))
+    return d
+
+
+def class_diagram():
+    d = Drawing(480, 315)
+    d.add(String(175, 298, "UML Class Diagram", fontName="Helvetica-Bold", fontSize=11))
+    draw_box(d, 185, 225, 115, 55, "BankAccount\n-accountNo\n-balance\n+debit()\n+credit()", "#eef2ff")
+    draw_box(d, 45, 140, 115, 55, "SavingsAccount\n-interestRate\n+addInterest()", "#f8fafc")
+    draw_box(d, 325, 140, 115, 55, "CurrentAccount\n-overdraftLimit\n+checkLimit()", "#f8fafc")
+    draw_box(d, 20, 225, 115, 55, "Customer\n-customerId\n-name\n+login()", "#f8fafc")
+    draw_box(d, 185, 125, 115, 55, "Transaction\n-txnId\n-amount\n-status", "#f8fafc")
+    draw_box(d, 45, 35, 115, 55, "FundTransfer\n-destination\n+execute()", "#f8fafc")
+    draw_box(d, 325, 35, 115, 55, "BillPayment\n-biller\n+pay()", "#f8fafc")
+    draw_box(d, 185, 35, 115, 55, "Notification\n-channel\n+send()", "#f8fafc")
+    draw_arrow(d, 135, 252, 185, 252)
+    d.add(String(142, 260, "1 owns *", fontSize=7))
+    draw_arrow(d, 242, 225, 242, 180)
+    d.add(String(250, 198, "has *", fontSize=7))
+    draw_arrow(d, 102, 195, 205, 225)
+    draw_arrow(d, 382, 195, 280, 225)
+    d.add(String(205, 207, "inherits", fontSize=7))
+    draw_arrow(d, 102, 90, 205, 125)
+    draw_arrow(d, 382, 90, 280, 125)
+    d.add(String(205, 98, "inherits", fontSize=7))
+    draw_arrow(d, 242, 125, 242, 90)
+    d.add(String(250, 103, "triggers", fontSize=7))
+    return d
+
+
+def sequence_diagram():
+    d = Drawing(480, 300)
+    d.add(String(160, 282, "Sequence Diagram: Fund Transfer", fontName="Helvetica-Bold", fontSize=11))
+    actors = [("Customer", 25), ("WebApp", 105), ("AuthService", 195), ("TransferService", 300), ("Database", 405)]
+    for label, x in actors:
+        draw_box(d, x, 245, 65, 25, label, "#eff6ff", size=8)
+        d.add(Line(x + 32, 245, x + 32, 30, strokeColor=colors.HexColor("#94a3b8"), strokeDashArray=[3, 3]))
+    messages = [
+        (57, 137, 225, "enter details"), (137, 227, 200, "verify OTP"),
+        (227, 332, 175, "initiateTransfer"), (332, 437, 150, "validate accounts"),
+        (437, 332, 125, "account ok"), (332, 437, 100, "save transaction"),
+        (332, 137, 75, "confirmation"), (137, 57, 50, "receipt"),
+    ]
+    for x1, x2, y, label in messages:
+        draw_arrow(d, x1, y, x2, y)
+        d.add(String(min(x1, x2) + 8, y + 5, label, fontName="Helvetica", fontSize=7))
+    return d
+
+
+def activity_diagram():
+    d = Drawing(480, 350)
+    d.add(String(160, 332, "Activity Diagram: Online Fund Transfer", fontName="Helvetica-Bold", fontSize=11))
+    steps = [
+        ("Start", 205, 300, "circle"), ("Login", 185, 260, "box"), ("Verify Credentials", 170, 220, "box"),
+        ("Valid?", 205, 178, "diamond"), ("Enter Transfer Details", 160, 130, "box"),
+        ("Check OTP and Balance", 155, 90, "box"), ("Post Transaction", 172, 50, "box"),
+        ("Send Notification", 170, 15, "box"),
+    ]
+    prev = None
+    for label, x, y, kind in steps:
+        if kind == "circle":
+            d.add(Circle(x + 35, y, 8, strokeColor=colors.black, fillColor=colors.black))
+            center = (x + 35, y)
+        elif kind == "diamond":
+            d.add(Polygon([x + 35, y + 18, x + 70, y, x + 35, y - 18, x, y], strokeColor=colors.HexColor("#12355b"), fillColor=colors.HexColor("#eff6ff")))
+            d.add(String(x + 20, y - 3, label, fontName="Helvetica", fontSize=8))
+            center = (x + 35, y)
+        else:
+            draw_box(d, x, y - 12, 110, 24, label, "#f8fafc", size=8)
+            center = (x + 55, y)
+        if prev:
+            draw_arrow(d, prev[0], prev[1] - 14, center[0], center[1] + 14)
+        prev = center
+    draw_arrow(d, 275, 178, 380, 178)
+    draw_box(d, 385, 166, 70, 24, "Reject", "#fee2e2", "#991b1b", size=8)
+    d.add(String(312, 185, "No", fontName="Helvetica", fontSize=8))
+    d.add(String(245, 156, "Yes", fontName="Helvetica", fontSize=8))
+    return d
+
+
+def architecture_diagram():
+    d = Drawing(480, 255)
+    d.add(String(165, 235, "System Architecture Diagram", fontName="Helvetica-Bold", fontSize=11))
+    layers = [
+        ("Presentation Layer\nWeb / Mobile UI", 35, 185, 410, 35, "#eff6ff"),
+        ("Controller / REST API Layer\nLoginController, TransferController, AdminController", 35, 140, 410, 35, "#f8fafc"),
+        ("Service Layer\nAuthenticationService, TransferService, PaymentService, NotificationService", 35, 95, 410, 35, "#eef2ff"),
+        ("Repository Layer\nCustomerRepository, AccountRepository, TransactionRepository", 35, 50, 410, 35, "#f8fafc"),
+        ("Database Layer\ncustomers, accounts, transactions, beneficiaries, audit_logs", 35, 5, 410, 35, "#ecfdf5"),
+    ]
+    for label, x, y, w, h, fill in layers:
+        draw_box(d, x, y, w, h, label, fill, size=8.5)
+    for y1, y2 in [(185, 175), (140, 130), (95, 85), (50, 40)]:
+        draw_arrow(d, 240, y1, 240, y2)
+    return d
+
+
+def er_diagram():
+    d = Drawing(480, 300)
+    d.add(String(170, 282, "Database ER Diagram", fontName="Helvetica-Bold", fontSize=11))
+    entities = {
+        "customers": (25, 205, "customers\nPK customer_id\nname\nemail\nmobile"),
+        "accounts": (185, 205, "accounts\nPK account_id\nFK customer_id\nbalance\nstatus"),
+        "transactions": (345, 205, "transactions\nPK txn_id\nFK account_id\namount\ntype"),
+        "beneficiaries": (25, 95, "beneficiaries\nPK beneficiary_id\nFK customer_id\naccount_no"),
+        "bill_payments": (185, 95, "bill_payments\nPK payment_id\nFK account_id\nbiller\nstatus"),
+        "audit_logs": (345, 95, "audit_logs\nPK log_id\nuser_id\naction\ntime"),
+    }
+    for _, (x, y, label) in entities.items():
+        draw_box(d, x, y, 110, 68, label, "#f8fafc", size=8)
+    draw_arrow(d, 135, 238, 185, 238)
+    d.add(String(145, 247, "1..*", fontSize=7))
+    draw_arrow(d, 295, 238, 345, 238)
+    d.add(String(305, 247, "1..*", fontSize=7))
+    draw_arrow(d, 80, 205, 80, 163)
+    d.add(String(87, 178, "1..*", fontSize=7))
+    draw_arrow(d, 240, 205, 240, 163)
+    d.add(String(247, 178, "1..*", fontSize=7))
+    draw_arrow(d, 400, 205, 400, 163)
+    d.add(String(407, 178, "logs", fontSize=7))
+    return d
+
+
+FIGURES_BY_SUBSECTION = {
+    "4.2 Use Case Modeling": [("Figure 1: Use Case Diagram", use_case_diagram)],
+    "4.3 Domain Modeling": [("Figure 2: Domain Model Diagram", domain_model_diagram)],
+    "5.2 UML Diagrams": [
+        ("Figure 3: UML Class Diagram", class_diagram),
+        ("Figure 4: UML Sequence Diagram", sequence_diagram),
+        ("Figure 5: UML Activity Diagram", activity_diagram),
+    ],
+    "6.2 System Architecture": [("Figure 6: System Architecture Diagram", architecture_diagram)],
+    "6.3 Database Design": [("Figure 7: Database ER Diagram", er_diagram)],
+}
+
+
+MARKDOWN_DIAGRAMS = {
+    "4.2 Use Case Modeling": """```mermaid
+flowchart LR
+Customer((Customer)) --> Login([Login / 2FA])
+Customer --> Accounts([View Account Summary])
+Customer --> Transfer([Transfer Funds])
+Customer --> Bills([Pay Bills])
+Admin((Admin)) --> Users([Manage Users])
+Admin --> Monitor([Monitor Transactions])
+Admin --> Reports([Generate Reports])
+Gateway((Payment Gateway)) --> Bills
+Notify((Notification Service)) --> Alerts([Send Alerts])
+Transfer --> Alerts
+Bills --> Alerts
+```""",
+    "4.3 Domain Modeling": """```mermaid
+classDiagram
+Customer "1" --> "*" BankAccount : owns
+Customer "1" --> "*" Beneficiary : maintains
+BankAccount "1" --> "*" Transaction : records
+BankAccount "1" --> "*" Statement : produces
+Transaction --> Notification : triggers
+class Customer
+class BankAccount
+class Transaction
+class Beneficiary
+class Statement
+class Notification
+```""",
+    "5.2 UML Diagrams": """```mermaid
+classDiagram
+BankAccount <|-- SavingsAccount
+BankAccount <|-- CurrentAccount
+Transaction <|-- FundTransfer
+Transaction <|-- BillPayment
+Customer "1" --> "*" BankAccount
+BankAccount "1" --> "*" Transaction
+Transaction --> Notification
+```
+
+```mermaid
+sequenceDiagram
+actor Customer
+participant WebApp
+participant AuthService
+participant TransferService
+participant Database
+Customer->>WebApp: Enter transfer details
+WebApp->>AuthService: Verify session and OTP
+WebApp->>TransferService: initiateTransfer()
+TransferService->>Database: Validate accounts and save transaction
+TransferService-->>WebApp: Confirmation
+WebApp-->>Customer: Receipt
+```
+
+```mermaid
+flowchart TD
+Start((Start)) --> Login[Login]
+Login --> Verify[Verify credentials]
+Verify --> Valid{Valid?}
+Valid -- No --> Reject[Reject request]
+Valid -- Yes --> Details[Enter transfer details]
+Details --> Check[Check OTP and balance]
+Check --> Post[Post transaction]
+Post --> Notify[Send notification]
+Notify --> End((End))
+```""",
+    "6.2 System Architecture": """```mermaid
+flowchart TD
+UI[Web / Mobile UI] --> API[Controller / REST API Layer]
+API --> Service[Service Layer]
+Service --> Repo[Repository Layer]
+Repo --> DB[(Database)]
+Service --> SMS[SMS / Email Gateway]
+Service --> Payment[Payment Gateway]
+```""",
+    "6.3 Database Design": """```mermaid
+erDiagram
+CUSTOMERS ||--o{ ACCOUNTS : owns
+CUSTOMERS ||--o{ BENEFICIARIES : manages
+ACCOUNTS ||--o{ TRANSACTIONS : records
+ACCOUNTS ||--o{ BILL_PAYMENTS : pays
+TRANSACTIONS ||--o{ AUDIT_LOGS : logs
+```""",
+}
+
+
 def build_pdf():
     styles = getSampleStyleSheet()
     styles.add(
@@ -553,6 +883,18 @@ def build_pdf():
             leading=20,
             alignment=TA_CENTER,
             textColor=colors.HexColor("#374151"),
+            spaceAfter=10,
+        )
+    )
+    styles.add(
+        ParagraphStyle(
+            name="Caption",
+            parent=styles["Normal"],
+            fontSize=9,
+            leading=12,
+            alignment=TA_CENTER,
+            textColor=colors.HexColor("#374151"),
+            spaceBefore=4,
             spaceAfter=10,
         )
     )
@@ -604,7 +946,7 @@ def build_pdf():
     story.append(para("Online Banking System", styles["Subtitle"]))
     story.append(Spacer(1, 0.25 * inch))
     story.append(para("<b>Prepared for:</b> Academic Project Submission", styles["Subtitle"]))
-    story.append(para("<b>Prepared by:</b> Student", styles["Subtitle"]))
+    story.append(para(f"<b>Prepared by:</b> {STUDENT_NAME}", styles["Subtitle"]))
     story.append(para("<b>Date:</b> May 2026", styles["Subtitle"]))
     story.append(Spacer(1, 0.6 * inch))
     story.append(para("This project applies Object-Oriented Software Engineering principles to the analysis, design, implementation planning, testing, and management of an online banking system.", styles["Subtitle"]))
@@ -626,9 +968,25 @@ def build_pdf():
                 story.append(para(subsection, styles["Heading2"]))
             for text in paragraphs:
                 story.append(para(text, styles["BodyText"]))
+            for title, figure_func in FIGURES_BY_SUBSECTION.get(subsection, []):
+                story.append(Spacer(1, 4))
+                story.append(figure_func())
+                story.append(caption(title, styles))
 
     story.append(para("14. Appendices", styles["Heading1"]))
     story.append(para("Appendix A: UML Diagrams", styles["Heading2"]))
+    story.append(para("The following appendix repeats all required project diagrams as figures so the submitted PDF contains complete visual analysis and design documentation.", styles["BodyText"]))
+    for title, figure_func in [
+        ("Appendix Figure A1: Use Case Diagram", use_case_diagram),
+        ("Appendix Figure A2: Domain Model Diagram", domain_model_diagram),
+        ("Appendix Figure A3: UML Class Diagram", class_diagram),
+        ("Appendix Figure A4: UML Sequence Diagram", sequence_diagram),
+        ("Appendix Figure A5: UML Activity Diagram", activity_diagram),
+        ("Appendix Figure A6: System Architecture Diagram", architecture_diagram),
+        ("Appendix Figure A7: Database ER Diagram", er_diagram),
+    ]:
+        story.append(figure_func())
+        story.append(caption(title, styles))
     for heading, blocks in APPENDICES[0][1][1:4]:
         story.append(para(heading, styles["Heading2"]))
         for block in blocks:

@@ -2,7 +2,7 @@
 ## Online Banking System
 
 **Prepared for:** Academic Project Submission
-**Prepared by:** Student
+**Prepared by:** Pravin Gupta
 **Date:** May 2026
 
 ## Table of Contents
@@ -55,6 +55,16 @@
   - A: UML Diagrams
   - B: Sample Code
   - C: Test Cases
+
+## Figures and Diagrams Included
+
+1. Use Case Diagram
+2. Domain Model Diagram
+3. UML Class Diagram
+4. UML Sequence Diagram
+5. UML Activity Diagram
+6. System Architecture Diagram
+7. Database ER Diagram
 
 ## 1. Introduction
 
@@ -134,11 +144,41 @@ Important use cases include Register Customer, Login, View Account Summary, Tran
 
 The Customer actor performs most self-service operations. The Admin actor manages users and monitors system activity. The Payment Gateway actor confirms bill payment status. The Notification Service actor sends transaction alerts.
 
+```mermaid
+flowchart LR
+Customer((Customer)) --> Login([Login / 2FA])
+Customer --> Accounts([View Account Summary])
+Customer --> Transfer([Transfer Funds])
+Customer --> Bills([Pay Bills])
+Admin((Admin)) --> Users([Manage Users])
+Admin --> Monitor([Monitor Transactions])
+Admin --> Reports([Generate Reports])
+Gateway((Payment Gateway)) --> Bills
+Notify((Notification Service)) --> Alerts([Send Alerts])
+Transfer --> Alerts
+Bills --> Alerts
+```
+
 ### 4.3 Domain Modeling
 
 The domain model shows real-world banking concepts and their relationships. A Customer may own one or more BankAccounts. A BankAccount may have many Transactions. A FundTransfer is a specialized Transaction involving source and destination accounts. A Statement summarizes Transactions for a selected period.
 
 Domain modeling helps ensure that software classes are aligned with banking reality and that important business rules are visible before coding begins.
+
+```mermaid
+classDiagram
+Customer "1" --> "*" BankAccount : owns
+Customer "1" --> "*" Beneficiary : maintains
+BankAccount "1" --> "*" Transaction : records
+BankAccount "1" --> "*" Statement : produces
+Transaction --> Notification : triggers
+class Customer
+class BankAccount
+class Transaction
+class Beneficiary
+class Statement
+class Notification
+```
 
 ## 5. Object-Oriented Design (OOD)
 
@@ -153,6 +193,45 @@ Key relationships include association between Customer and BankAccount, composit
 The project uses class, sequence, and activity diagrams. The class diagram describes static structure. The sequence diagram shows object interaction during fund transfer. The activity diagram shows the workflow from login to transaction confirmation.
 
 Textual UML representations are included in Appendix A so they can be converted into graphical diagrams using PlantUML or any UML tool.
+
+```mermaid
+classDiagram
+BankAccount <|-- SavingsAccount
+BankAccount <|-- CurrentAccount
+Transaction <|-- FundTransfer
+Transaction <|-- BillPayment
+Customer "1" --> "*" BankAccount
+BankAccount "1" --> "*" Transaction
+Transaction --> Notification
+```
+
+```mermaid
+sequenceDiagram
+actor Customer
+participant WebApp
+participant AuthService
+participant TransferService
+participant Database
+Customer->>WebApp: Enter transfer details
+WebApp->>AuthService: Verify session and OTP
+WebApp->>TransferService: initiateTransfer()
+TransferService->>Database: Validate accounts and save transaction
+TransferService-->>WebApp: Confirmation
+WebApp-->>Customer: Receipt
+```
+
+```mermaid
+flowchart TD
+Start((Start)) --> Login[Login]
+Login --> Verify[Verify credentials]
+Verify --> Valid{Valid?}
+Valid -- No --> Reject[Reject request]
+Valid -- Yes --> Details[Enter transfer details]
+Details --> Check[Check OTP and balance]
+Check --> Post[Post transaction]
+Post --> Notify[Send notification]
+Notify --> End((End))
+```
 
 ### 5.3 Design Patterns Used
 
@@ -174,11 +253,30 @@ The proposed system uses a layered architecture: presentation layer, controller/
 
 This architecture improves separation of concerns. For example, changing the SMS provider should affect NotificationService implementation but not Account or Transaction classes.
 
+```mermaid
+flowchart TD
+UI[Web / Mobile UI] --> API[Controller / REST API Layer]
+API --> Service[Service Layer]
+Service --> Repo[Repository Layer]
+Repo --> DB[(Database)]
+Service --> SMS[SMS / Email Gateway]
+Service --> Payment[Payment Gateway]
+```
+
 ### 6.3 Database Design
 
 Core tables include customers, accounts, transactions, beneficiaries, bill_payments, statements, admin_users, audit_logs, notifications, and support_tickets. Primary keys identify records, while foreign keys preserve relationships such as customer-to-account and account-to-transaction.
 
 Transaction records should be immutable after posting. Corrections should be handled through reversal or adjustment entries, not by deleting transaction history.
+
+```mermaid
+erDiagram
+CUSTOMERS ||--o{ ACCOUNTS : owns
+CUSTOMERS ||--o{ BENEFICIARIES : manages
+ACCOUNTS ||--o{ TRANSACTIONS : records
+ACCOUNTS ||--o{ BILL_PAYMENTS : pays
+TRANSACTIONS ||--o{ AUDIT_LOGS : logs
+```
 
 ## 7. Testing and Validation
 
